@@ -7,7 +7,7 @@ For now the module is still inchoate; it only covers two basic functions (starti
 
 No installation is necessary. Just download the two files (ev3py.py and dec_to_hex.py) and import the ev3 class from ev3py.
 
-Usage example:
+Usage example (starts motor in port A with 20% capacity):
 
     from ev3py import ev3
 
