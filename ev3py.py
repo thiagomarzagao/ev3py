@@ -171,7 +171,7 @@ class ev3:
         command = comm_0 + comm_1
         self.brick.write(command)
         sensor_data = self.brick.read(6)
-        return int(hex(ord(sensor_data[5])), 16)
+        return int(hex(ord(sensor_data[5])), 16) # returns the 5th byte (sensor value); maybe should return all bytes instead?
         
     def disconnect(self):
         self.brick.close()
