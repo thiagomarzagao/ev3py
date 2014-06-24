@@ -20,7 +20,8 @@ Author: Thiago Marzagao (tmarzagao at gmail dot com)
 
 from dec_to_hex import h # decimal-to-hexadecimal dictionary
 
-# globals    
+# globals
+# see bytecodes.h in the firmware source code (https://github.com/mindboards/ev3sources)
 PRIMPAR_SHORT = 0x00
 PRIMPAR_LONG = 0x80
 PRIMPAR_CONST = 0x00
