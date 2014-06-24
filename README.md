@@ -12,5 +12,5 @@ Usage example (starts motor in port A with 20% capacity):
     from ev3py import ev3
 
     mybrick = ev3()
-    mybrick.connect('bt')
+    mybrick.connect('bt') # connect with EV3 via Bluetooth
     mybrick.start_motor(port = 'a', power = 20)
