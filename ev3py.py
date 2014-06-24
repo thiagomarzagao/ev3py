@@ -1,5 +1,5 @@
 '''
-This module implements the class 'EV3', which you can use to interact 
+This module implements the Python class 'ev3', which you can use to interact 
 with LEGO Mindstorms EV3 bricks.
 
 Tested on: 
@@ -15,11 +15,14 @@ To do:
 - Windows support
 
 Author: Thiago Marzagao (tmarzagao at gmail dot com)
+
+See firmware source code (https://github.com/mindboards/ev3sources) for 
+info on the data types and opcodes used here.
 '''
 
 from dec_to_hex import h # decimal-to-hexadecimal dictionary
 
-# globals (taken from bytecodes.h in the firmware source code: https://github.com/mindboards/ev3sources)
+# globals
 PRIMPAR_SHORT = 0x00
 PRIMPAR_LONG = 0x80
 PRIMPAR_CONST = 0x00
@@ -55,7 +58,7 @@ def LC2(v):
 class ev3:
 
     '''
-    this class lets you interact with EV3 bricks
+    this class lets you interact with EV3 bricks    
     '''
 
     def __init__(self):
@@ -101,7 +104,7 @@ class ev3:
         commands = []
         for port in ports:
 
-            # opOUTPUT_POWER
+            # opOUTPUT_POWER 
             comm_1 = '\xA4' + LC0(layer) + LC0(port) + LC1(power)
 
             # opOUTPUT_START
@@ -168,8 +171,12 @@ class ev3:
         # assemble command and send
         command = comm_0 + comm_1
         self.brick.write(command)
+
+        # retrieve sensor value (5th byte) and convert to int
         sensor_data = self.brick.read(6)
-        return int(hex(ord(sensor_data[5])), 16) # returns the 5th byte (sensor value); maybe should return all bytes instead?
-        
+        return int(hex(ord(sensor_data[5])), 16)
+
+    def get_output_type
+
     def disconnect(self):
         self.brick.close()
