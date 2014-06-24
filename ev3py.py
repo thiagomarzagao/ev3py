@@ -1,6 +1,6 @@
 '''
-This module implements the Python class 'ev3', which you can use to interact 
-with LEGO Mindstorms EV3 bricks.
+This module offers easy-to-understand methods that you can use to
+interact with LEGO Mindstorms EV3 bricks.
 
 Tested on: 
 - OS X 10.9.3 with Python 2.7.6
