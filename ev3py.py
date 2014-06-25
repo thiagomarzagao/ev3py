@@ -118,9 +118,9 @@ class ev3:
             command = comm_0 + comm_1 + comm_2
             commands.append(command)
 
-        # send command to each port        
+        # send command to each port
         for command in commands:
-            self.brick.write(command)
+            self.brick.write(command) # todo: replace loop by actual sync
         
     def stop_motor(self, ports, mode='coast', layer=0):
  
