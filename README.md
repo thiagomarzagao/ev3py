@@ -7,10 +7,10 @@ For now the module is still inchoate; it only covers three basic functions (star
 
 No installation is necessary. Just download the two files (ev3py.py and dec_to_hex.py) and import the 'ev3' class from ev3py.
 
-Usage example (starts motor in port A with 20% capacity):
+Usage example (starts motors in ports A and D, with 20% capacity):
 
     from ev3py import ev3
 
     mybrick = ev3()
     mybrick.connect('bt') # connect with EV3 via Bluetooth
-    mybrick.start_motor(port = 'a', power = 20)
+    mybrick.start_motors(ports = 'ad', power = 20)
