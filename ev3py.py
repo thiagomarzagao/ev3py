@@ -104,6 +104,7 @@ class ev3:
         '''
 
         self.ports_to_int = {'a': 1, 'b': 2, 'c': 4, 'd': 8}
+        self.stops = {'brake': 1, 'coast': 0}
 
     def connect(self, conn_type):
     
@@ -141,12 +142,12 @@ class ev3:
         command = comm_0 + comm_1 + comm_2
         self.brick.write(command)
                 
-    def stop_motors(self, ports, mode='coast', layer=0):
+    def stop_motors(self, ports, stop='coast', layer=0):
  
         '''
         stop motors at specified ports and layer
 
-        mode: 'brake', 'coast'
+        stop_mode: 'brake', 'coast'
             type: str
         '''
 
@@ -154,20 +155,19 @@ class ev3:
         ports = sum([self.ports_to_int[port] for port in ports])
 
         # map mode: str->int
-        modes = {'brake': 1, 'coast': 0}
-        mode = modes[mode]
+        stop = self.stops[stop]
  
         # set message size, message counter, command type, vars
         comm_0 = '\x09\x00\x01\x00\x80\x00\x00'
 
         # opOUTPUT_STOP
-        comm_1 = '\xA3' + LC0(layer) + LC0(ports) + LC0(mode)
+        comm_1 = '\xA3' + LC0(layer) + LC0(ports) + LC0(stop_mode)
 
         # assemble command and send to EV3
         command = comm_0 + comm_1
         self.brick.write(command)
 
-    def start_motors_degrees(self, ports, power, degrees, mode='brake', 
+    def start_motors_degrees(self, ports, power, degrees, stop='brake', 
                              ramp_up=0, ramp_down=0, layer=0):
 
         '''
@@ -192,13 +192,53 @@ class ev3:
         ports = sum([self.ports_to_int[port] for port in ports])
 
         # map mode: str->int
-        modes = {'brake': 1, 'coast': 0}
-        mode = modes[mode]
+        stop = self.stops[stop]
 
         # opOUTPUT_STEP_POWER
         comm_1 = '\xAC' + LC0(layer) + LC0(ports) + LC1(power) \
                  + LC4(ramp_up) + LC4(degrees) + LC4(ramp_down) \
-                 + LC0(mode)
+                 + LC0(stop)
+    
+        # opOUTPUT_START
+        comm_2 = '\xA6' + LC0(layer) + LC0(ports)
+
+        msg_size = len(comm_1 + comm_2) + 5
+        comm_0 = h[msg_size] + '\x00\x00\x00\x80\x00\x00'
+
+        # assemble command and send to EV3
+        command = comm_0 + comm_1 + comm_2
+        self.brick.write(command)
+
+    def start_motors_time(self, ports, power, time, stop='brake', 
+                             ramp_up=0, ramp_down=0, layer=0):
+
+        '''
+        start motors at specified ports, power, and layer, and
+        stop them after specified number of milliseconds
+        
+        time: 0...MAX
+            type: int
+            obs.: unit is milliseconds
+        mode: 'brake', 'coast'
+            type: str
+        ramp_up: 0...MAX
+            type: int
+            obs.: makes acceleration constant; unit is milliseconds
+        ramp_down: 0...MAX
+            type: int
+            obs.: makes deceleration constant; unit is milliseconds
+        '''        
+
+        # map ports: str->int
+        ports = sum([self.ports_to_int[port] for port in ports])
+
+        # map mode: str->int
+        stop = self.stops[stop]
+
+        # opOUTPUT_STEP_POWER
+        comm_1 = '\xAD' + LC0(layer) + LC0(ports) + LC1(power) \
+                 + LC4(ramp_up) + LC4(time) + LC4(ramp_down) \
+                 + LC0(stop)
     
         # opOUTPUT_START
         comm_2 = '\xA6' + LC0(layer) + LC0(ports)
@@ -222,7 +262,7 @@ class ev3:
         # opINPUT_READ
         comm_1 = '\x9A' + LC0(layer) + LC0(port) + '\x00\x00\x60'
 
-        # assemble command and send
+        # assemble command and send to EV3
         command = comm_0 + comm_1
         self.brick.write(command)
 
