@@ -13,4 +13,4 @@ Usage example (starts motors in ports A and D, with 20% capacity):
 
     mybrick = ev3()
     mybrick.connect('bt') # connect with EV3 via Bluetooth
-    mybrick.start_motors(ports = 'ad', power = 20)
+    mybrick.motor_start(ports = 'ad', power = 20)
