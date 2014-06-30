@@ -147,7 +147,7 @@ class ev3:
         '''
         stop motors at specified ports and layer
 
-        stop_mode: 'brake', 'coast'
+        stop: 'brake', 'coast'
             type: str
         '''
 
@@ -161,7 +161,7 @@ class ev3:
         comm_0 = '\x09\x00\x01\x00\x80\x00\x00'
 
         # opOUTPUT_STOP
-        comm_1 = '\xA3' + LC0(layer) + LC0(ports) + LC0(stop_mode)
+        comm_1 = '\xA3' + LC0(layer) + LC0(ports) + LC0(stop)
 
         # assemble command and send to EV3
         command = comm_0 + comm_1
@@ -249,6 +249,31 @@ class ev3:
         # assemble command and send to EV3
         command = comm_0 + comm_1 + comm_2
         self.brick.write(command)
+
+    def get_tacho(self, port, layer=0):
+
+        '''
+        read tachometer from specified motor
+        '''
+
+        # map ports: str->int
+        port = self.ports_to_int[port]
+        
+        # set message size, message counter, command type, vars
+        comm_0 = '\x09\x00\x00\x00\x00\x01\x00'
+        
+        # opOUTPUT_GET_COUNT
+        comm_1 = '\xB3' + LC0(layer) + LC0(port) + GV0(4)
+
+        # assemble command and send to EV3
+        command = comm_0 + comm_1
+        self.brick.write(command)
+
+        # retrieve sensor value
+        data = self.brick.read(6)
+        for i in range(6):
+            print hex(ord(data[i]))
+        return int(hex(ord(sensor_data[5])), 16)
 
     def read_sensor(self, port, layer=0):
         
