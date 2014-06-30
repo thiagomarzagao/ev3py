@@ -119,7 +119,7 @@ class ev3:
                       'wifi': ''} # must add wifi support
         self.brick = open(conn_types[conn_type], mode = 'w+', buffering = 0)
 
-    def start_motors(self, ports, power, layer=0):
+    def motor_start(self, ports, power, layer=0):
 
         '''
         start motors at specified ports, power, and layer        
@@ -142,7 +142,7 @@ class ev3:
         command = comm_0 + comm_1 + comm_2
         self.brick.write(command)
                 
-    def stop_motors(self, ports, stop='coast', layer=0):
+    def motor_stop(self, ports, stop='coast', layer=0):
  
         '''
         stop motors at specified ports and layer
@@ -167,8 +167,8 @@ class ev3:
         command = comm_0 + comm_1
         self.brick.write(command)
 
-    def start_motors_degrees(self, ports, power, degrees, stop='brake', 
-                             ramp_up=0, ramp_down=0, layer=0):
+    def motor_degrees(self, ports, power, degrees, stop='brake', 
+                      ramp_up=0, ramp_down=0, layer=0):
 
         '''
         start motors at specified ports, power, and layer, and
@@ -209,8 +209,8 @@ class ev3:
         command = comm_0 + comm_1 + comm_2
         self.brick.write(command)
 
-    def start_motors_time(self, ports, power, time, stop='brake', 
-                             ramp_up=0, ramp_down=0, layer=0):
+    def motor_time(self, ports, power, time, stop='brake', 
+                   ramp_up=0, ramp_down=0, layer=0):
 
         '''
         start motors at specified ports, power, and layer, and
