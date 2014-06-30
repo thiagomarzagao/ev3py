@@ -67,7 +67,7 @@ class ev3:
         data used by several methods
         '''
 
-        self.port_to_hex = {'a': 1, 'b': 2, 'c': 4, 'd': 8}
+        self.ports_to_int = {'a': 1, 'b': 2, 'c': 4, 'd': 8}
 
     def connect(self, mode):
     
@@ -82,7 +82,7 @@ class ev3:
                  'wifi': ''} # must add wifi support
         self.brick = open(modes[mode], mode = 'w+', buffering = 0)
 
-    def start_motor(self, ports, power, layer=0):
+    def start_motors(self, ports, power, layer=0):
 
         '''
         start motors at specified ports, power, and layer
@@ -98,31 +98,23 @@ class ev3:
         '''
 
         # map ports: str->int
-        ports = [self.port_to_hex[port] for port in ports]
+        ports = sum([self.ports_to_int[port] for port in ports])
 
-        # write out command for each port
-        commands = []
-        for port in ports:
+        # opOUTPUT_POWER
+        comm_1 = '\xA4' + LC0(layer) + LC0(ports) + LC1(power)
 
-            # opOUTPUT_POWER 
-            comm_1 = '\xA4' + LC0(layer) + LC0(port) + LC1(power)
+        # opOUTPUT_START
+        comm_2 = '\xA6' + LC0(layer) + LC0(ports)
 
-            # opOUTPUT_START
-            comm_2 = '\xA6' + LC0(layer) + LC0(port)
+        # set message size, message counter, command type, vars
+        msg_size = len(comm_1 + comm_2) + 5
+        comm_0 = h[msg_size] + '\x00\x00\x00\x80\x00\x00'
 
-            # set message size, message counter, command type, vars
-            msg_size = len(comm_1 + comm_2) + 5
-            comm_0 = h[msg_size] + '\x00\x00\x00\x80\x00\x00'
+        # assemble command and send to EV3
+        command = comm_0 + comm_1 + comm_2
+        self.brick.write(command)
 
-            # assemble command
-            command = comm_0 + comm_1 + comm_2
-            commands.append(command)
-
-        # send command to each port
-        for command in commands:
-            self.brick.write(command) # todo: replace loop by actual sync
-        
-    def stop_motor(self, ports, mode='coast', layer=0):
+    def stop_motors(self, ports, mode='coast', layer=0):
  
         '''
         stop motors at specified ports and layer
@@ -131,11 +123,13 @@ class ev3:
             type: str or iterable
             examples: 'a', 'bcd', ['d', 'c'], ['a'], ('c', 'b')
         mode: 'break', 'coast'
+            type: str
         layer: 0, 1, 2, 3 (use 0 unless you have multiple EV3 bricks)
+            type: int
         '''
 
         # map ports: str->int
-        ports = [self.port_to_hex[port] for port in ports]
+        ports = sum([self.ports_to_int[port] for port in ports])
 
         # map mode: str->int
         modes = {'break': 1, 'coast': 0}
@@ -144,14 +138,12 @@ class ev3:
         # set message size, message counter, command type, vars
         comm_0 = '\x09\x00\x01\x00\x80\x00\x00'
 
-        for port in ports:
+        # opOUTPUT_STOP
+        comm_1 = '\xA3' + LC0(layer) + LC0(ports) + LC0(mode)
 
-            # opOUTPUT_STOP
-            comm_1 = '\xA3' + LC0(layer) + LC0(port) + LC0(mode)
-
-            # assemble command and send
-            command = comm_0 + comm_1
-            self.brick.write(command)
+        # assemble command and send to EV3
+        command = comm_0 + comm_1
+        self.brick.write(command)
 
     def read_sensor(self, port, layer=0):
         
