@@ -80,29 +80,63 @@ class ev3:
     '''
     this class lets you interact with EV3 bricks
     
-    arguments used in several methods:
-    
+    arguments used in more than one method:
+
+    degrees: 0...MAX
+        type: int
+        obs.: unit is degrees (360 degrees = 1 full turn)
+    layer: 0, 1, 2, 3
+        type: int
+        obs.: use 0 unless you have multiple EV3 bricks
+    port: 0, 1, 2, 3
+        type: int
+        obs.: sensor port   
     ports: a, b, c, d, any combinations thereof
         type: str or iterable
         obs.: motor ports
         examples: 'a', 'bcd', ['d', 'c'], ['a'], ('c', 'b')        
-    port: 0, 1, 2, 3
-        type: int
-        obs.: sensor port
     power: -100...+100
         type: int
         obs.: -100 is full power backward, 100 is full power forward
-    layer: 0, 1, 2, 3
+    ramp_down: 0...MAX
         type: int
-        obs.: use 0 unless you have multiple EV3 bricks
+        obs.: makes deceleration constant;
+              unit is degrees (motor_degrees) 
+              or milliseconds (motor_time)
+    ramp_up: 0...MAX
+        type: int
+        obs.: makes acceleration constant; 
+              unit is degrees (motor_degrees) 
+              or milliseconds (motor_time)
+    speed: -100...100
+        type: int
+        obs.: -100 is full speed backward, 100 is full speed forward
+              CAREFUL! speed will adjust power to keep robot moving at
+              constant pace regardless of load or obstacles, so it may
+              damage your robot
     stop: 'brake', 'coast'
         type: str
+    time: 0...MAX
+        type: int
+        obs.: unit is milliseconds
+    turn: -200...200
+        type: int
+        obs.: turn ratio between two synchronized motors
+              0 value is moving straight forward
+              negative values turn to the left
+              positive values turn to the right
+              -100 value stops the left motor
+              +100 value stops the right motor
+              values less than -100 make the left motor run the 
+                opposite direction of the right motor (spin)
+              values greater than +100 make the right motor run the 
+                opposite direction of the left motor (spin)
     '''
 
     def __init__(self):
 
         '''
-        data used by several methods
+        data used in more than one method
         '''
 
         self.ports_to_int = {'a': 1, 'b': 2, 'c': 4, 'd': 8}
@@ -171,16 +205,6 @@ class ev3:
         '''
         start motors and stop them after specified number of degrees
         (accurate to +/- 1 degree)
-        
-        degrees: 0...MAX
-            type: int
-            obs.: unit is degrees (360 degrees = 1 full turn)
-        ramp_up: 0...MAX
-            type: int
-            obs.: makes acceleration constant; unit is degrees
-        ramp_down: 0...MAX
-            type: int
-            obs.: makes deceleration constant; unit is degrees
         '''        
 
         # map ports: str->int
@@ -209,17 +233,7 @@ class ev3:
 
         '''
         start motors and stop them after specified number of
-        milliseconds
-        
-        time: 0...MAX
-            type: int
-            obs.: unit is milliseconds
-        ramp_up: 0...MAX
-            type: int
-            obs.: makes acceleration constant; unit is milliseconds
-        ramp_down: 0...MAX
-            type: int
-            obs.: makes deceleration constant; unit is milliseconds
+        milliseconds        
         '''        
 
         # map ports: str->int
@@ -241,6 +255,71 @@ class ev3:
 
         # assemble command and send to EV3
         command = comm_0 + comm_1 + comm_2
+        self.brick.write(command)
+
+    def turn_degrees(self, ports, speed, turn, degrees, stop='brake', 
+                           layer=0):
+    
+        '''        
+        move two motors in sync for specified number of degrees 
+        (to make robot turn)
+        
+        speed: -100...100
+            type: int
+            obs.: -100 is full speed backward, 100 is full speed forward;
+        turn: -200...200
+            type: int
+            obs.: turn ratio between two synchronized motors
+                  0 value is moving straight forward
+                  negative values turn to the left
+                  positive values turn to the right
+                  -100 value stops the left motor
+                  +100 value stops the right motor
+                  values less than -100 make the left motor run the 
+                    opposite direction of the right motor (spin)
+                  values greater than +100 make the right motor run the 
+                    opposite direction of the left motor (spin)
+        '''
+        
+        # map ports: str->int
+        ports = sum([self.ports_to_int[port] for port in ports])
+
+        # map mode: str->int
+        stop = self.stops[stop]
+
+        # set message size, message counter, command type, vars
+        comm_0 = '\x13\x00\x00\x00\x80\x00\x00'
+
+        # opOUTPUT_STEP_SYNC        
+        comm_1 = '\xB0' + LC0(layer) + LC0(ports) + LC1(speed) + LC2(turn) \
+                 + LC4(degrees) + LC0(stop)
+
+        # assemble command and send to EV3
+        command = comm_0 + comm_1
+        self.brick.write(command)
+
+    def turn_time(self, ports, speed, turn, time, stop='brake', layer=0):
+    
+        '''        
+        move two motors in sync for specified time 
+        (to make robot turn)        
+        '''
+        
+        # map ports: str->int
+        ports = sum([self.ports_to_int[port] for port in ports])
+
+        # map mode: str->int
+        stop = self.stops[stop]
+
+        # set message size, message counter, command type, vars
+        comm_0 = '\x13\x00\x00\x00\x80\x00\x00'
+
+        # opOUTPUT_STEP_SYNC        
+        comm_1 = '\xB0' + LC0(layer) + LC0(ports) + LC1(speed) + LC2(turn) \
+                 + LC4(time) + LC0(stop)
+
+        # assemble command and send to EV3
+        command = comm_0 + comm_1
         self.brick.write(command)
 
     def clear_tacho(self, ports, layer=0):
