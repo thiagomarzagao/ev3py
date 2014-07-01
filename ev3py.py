@@ -95,6 +95,8 @@ class ev3:
     layer: 0, 1, 2, 3
         type: int
         obs.: use 0 unless you have multiple EV3 bricks
+    stop: 'brake', 'coast'
+        type: str
     '''
 
     def __init__(self):
@@ -146,9 +148,6 @@ class ev3:
  
         '''
         stop motors at specified ports and layer
-
-        stop: 'brake', 'coast'
-            type: str
         '''
 
         # map ports: str->int
@@ -178,8 +177,6 @@ class ev3:
         degrees: 0...MAX
             type: int
             obs.: unit is degrees (360 degrees = 1 full turn)
-        mode: 'brake', 'coast'
-            type: str
         ramp_up: 0...MAX
             type: int
             obs.: makes acceleration constant; unit is degrees
@@ -219,8 +216,6 @@ class ev3:
         time: 0...MAX
             type: int
             obs.: unit is milliseconds
-        mode: 'brake', 'coast'
-            type: str
         ramp_up: 0...MAX
             type: int
             obs.: makes acceleration constant; unit is milliseconds
