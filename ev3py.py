@@ -245,6 +245,25 @@ class ev3:
         command = comm_0 + comm_1 + comm_2
         self.brick.write(command)
 
+    def clear_tacho(self, ports, layer=0):
+
+        '''
+        clear specified tachometers
+        '''
+
+        # map ports: str->int
+        ports = sum([self.ports_to_int[port] for port in ports])
+
+        # set message size, message counter, command type, vars        
+        comm_0 = '\x08\x00\x00\x00\x80\x00\x00'
+        
+        # opOUTPUT_CLR_COUNT
+        comm_1 = '\xB2' + LC0(layer) + LC0(ports)
+        
+        # assemble command and send to EV3
+        command = comm_0 + comm_1
+        self.brick.write(command)
+
     def read_sensor(self, port, layer=0):
         
         '''
