@@ -124,21 +124,20 @@ class ev3:
     def motor_start(self, ports, power, layer=0):
 
         '''
-        start motors at specified ports, power, and layer        
+        start motors        
         '''
 
         # map ports: str->int
         ports = sum([self.ports_to_int[port] for port in ports])
+
+        # set message size, message counter, command type, vars
+        comm_0 = '\x0D\x00\x00\x00\x80\x00\x00'
 
         # opOUTPUT_POWER
         comm_1 = '\xA4' + LC0(layer) + LC0(ports) + LC1(power)
 
         # opOUTPUT_START
         comm_2 = '\xA6' + LC0(layer) + LC0(ports)
-
-        # set message size, message counter, command type, vars
-        msg_size = len(comm_1 + comm_2) + 5
-        comm_0 = h[msg_size] + '\x00\x00\x00\x80\x00\x00'
 
         # assemble command and send to EV3
         command = comm_0 + comm_1 + comm_2
@@ -147,7 +146,7 @@ class ev3:
     def motor_stop(self, ports, stop='coast', layer=0):
  
         '''
-        stop motors at specified ports and layer
+        stop motors
         '''
 
         # map ports: str->int
@@ -170,9 +169,8 @@ class ev3:
                       ramp_up=0, ramp_down=0, layer=0):
 
         '''
-        start motors at specified ports, power, and layer, and
-        stop them after specified number of degrees (accurate to
-        +/- 1 degree)
+        start motors and stop them after specified number of degrees
+        (accurate to +/- 1 degree)
         
         degrees: 0...MAX
             type: int
@@ -191,6 +189,9 @@ class ev3:
         # map mode: str->int
         stop = self.stops[stop]
 
+        # set message size, message counter, command type, vars
+        comm_0 = '\x1D\x00\x00\x00\x80\x00\x00'
+
         # opOUTPUT_STEP_POWER
         comm_1 = '\xAC' + LC0(layer) + LC0(ports) + LC1(power) \
                  + LC4(ramp_up) + LC4(degrees) + LC4(ramp_down) \
@@ -198,9 +199,6 @@ class ev3:
     
         # opOUTPUT_START
         comm_2 = '\xA6' + LC0(layer) + LC0(ports)
-
-        msg_size = len(comm_1 + comm_2) + 5
-        comm_0 = h[msg_size] + '\x00\x00\x00\x80\x00\x00'
 
         # assemble command and send to EV3
         command = comm_0 + comm_1 + comm_2
@@ -210,8 +208,8 @@ class ev3:
                    ramp_up=0, ramp_down=0, layer=0):
 
         '''
-        start motors at specified ports, power, and layer, and
-        stop them after specified number of milliseconds
+        start motors and stop them after specified number of
+        milliseconds
         
         time: 0...MAX
             type: int
@@ -230,6 +228,9 @@ class ev3:
         # map mode: str->int
         stop = self.stops[stop]
 
+        # set message size, message counter, command type, vars
+        comm_0 = '\x1D\x00\x00\x00\x80\x00\x00'
+
         # opOUTPUT_STEP_POWER
         comm_1 = '\xAD' + LC0(layer) + LC0(ports) + LC1(power) \
                  + LC4(ramp_up) + LC4(time) + LC4(ramp_down) \
@@ -237,9 +238,6 @@ class ev3:
     
         # opOUTPUT_START
         comm_2 = '\xA6' + LC0(layer) + LC0(ports)
-
-        msg_size = len(comm_1 + comm_2) + 5
-        comm_0 = h[msg_size] + '\x00\x00\x00\x80\x00\x00'
 
         # assemble command and send to EV3
         command = comm_0 + comm_1 + comm_2
@@ -267,7 +265,7 @@ class ev3:
     def read_sensor(self, port, layer=0):
         
         '''
-        read sensor from specified port (unit: percentage)
+        read sensor (unit: percentage)
         '''
 
         # set message size, message counter, command type, vars
