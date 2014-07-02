@@ -36,14 +36,14 @@ PRIMPAR_4_BYTES = 3
 
 def LC0(v):
     '''
-    format 1-byte local constant
+    create 1-byte local constant
     '''
     byte1 = ((v & PRIMPAR_VALUE) | PRIMPAR_SHORT | PRIMPAR_CONST)
     return h[byte1]
 
 def LC1(v):
     '''
-    format 2-byte local constant
+    create 2-byte local constant
     '''    
     byte1 = (PRIMPAR_LONG | PRIMPAR_CONST | PRIMPAR_1_BYTE)
     byte2 = (v & 0xFF)
@@ -51,7 +51,7 @@ def LC1(v):
 
 def LC2(v):
     '''
-    format 3-byte local constant
+    create 3-byte local constant
     '''    
     byte1 = (PRIMPAR_LONG | PRIMPAR_CONST | PRIMPAR_2_BYTES)
     byte2 = (v & 0xFF)
@@ -60,7 +60,7 @@ def LC2(v):
 
 def LC4(v):
     '''
-    format 5-byte local constant
+    create 5-byte local constant
     '''
     byte1 = (PRIMPAR_LONG  | PRIMPAR_CONST | PRIMPAR_4_BYTES)
     byte2 = (v & 0xFF)
@@ -71,7 +71,7 @@ def LC4(v):
 
 def GV0(v):
     '''
-    format 1-byte global variable
+    create 1-byte global variable
     '''
     return h[((v & PRIMPAR_INDEX) | PRIMPAR_SHORT | PRIMPAR_VARIABEL | PRIMPAR_GLOBAL)]
 
@@ -88,9 +88,9 @@ class ev3:
     layer: 0, 1, 2, 3
         type: int
         obs.: use 0 unless you have multiple EV3 bricks
-    port: 0, 1, 2, 3
+    port: 1, 2, 3, 4
         type: int
-        obs.: sensor port   
+        obs.: sensor port
     ports: a, b, c, d, any combinations thereof
         type: str or iterable
         obs.: motor ports
@@ -245,7 +245,7 @@ class ev3:
         # set message size, message counter, command type, vars
         comm_0 = '\x1D\x00\x00\x00\x80\x00\x00'
 
-        # opOUTPUT_STEP_POWER
+        # opOUTPUT_TIME_POWER
         comm_1 = '\xAD' + LC0(layer) + LC0(ports) + LC1(power) \
                  + LC4(ramp_up) + LC4(time) + LC4(ramp_down) \
                  + LC0(stop)
@@ -263,22 +263,6 @@ class ev3:
         '''        
         move two motors in sync for specified number of degrees 
         (to make robot turn)
-        
-        speed: -100...100
-            type: int
-            obs.: -100 is full speed backward, 100 is full speed forward;
-        turn: -200...200
-            type: int
-            obs.: turn ratio between two synchronized motors
-                  0 value is moving straight forward
-                  negative values turn to the left
-                  positive values turn to the right
-                  -100 value stops the left motor
-                  +100 value stops the right motor
-                  values less than -100 make the left motor run the 
-                    opposite direction of the right motor (spin)
-                  values greater than +100 make the right motor run the 
-                    opposite direction of the left motor (spin)
         '''
         
         # map ports: str->int
@@ -301,7 +285,7 @@ class ev3:
     def turn_time(self, ports, speed, turn, time, stop='brake', layer=0):
     
         '''        
-        move two motors in sync for specified time 
+        move two motors in sync for specified number of milliseconds 
         (to make robot turn)        
         '''
         
@@ -314,7 +298,7 @@ class ev3:
         # set message size, message counter, command type, vars
         comm_0 = '\x13\x00\x00\x00\x80\x00\x00'
 
-        # opOUTPUT_STEP_SYNC        
+        # opOUTPUT_TIME_SYNC        
         comm_1 = '\xB0' + LC0(layer) + LC0(ports) + LC1(speed) + LC2(turn) \
                  + LC4(time) + LC0(stop)
 
@@ -347,6 +331,9 @@ class ev3:
         read sensor (unit: percentage)
         '''
 
+        # map ports
+        port -= 1
+
         # set message size, message counter, command type, vars
         comm_0 = '\x0B\x00\x00\x00\x00\x01\x00'
 
@@ -362,4 +349,9 @@ class ev3:
         return int(hex(ord(sensor_data[5])), 16)
 
     def disconnect(self):
+
+        ''''
+        disconnect from EV3
+        '''
+        
         self.brick.close()
