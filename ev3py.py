@@ -348,6 +348,33 @@ class ev3:
         sensor_data = self.brick.read(6)
         return int(hex(ord(sensor_data[5])), 16)
 
+    def play_tone(self, volume, frequency, duration):
+        
+        '''
+        plays tone
+        
+        volume: 0...100
+            type: int
+        frequency: ? (must check)
+            type: int
+            obs.: unit is Hz
+        duration: 0...MAX
+            type: int
+            obs.: unit is milliseconds
+        '''
+        
+        # set message size, message counter, command type, vars        
+        comm_0 = '\x0F\x00\x00\x00\x80\x00\x00'
+
+        # opSOUND
+        comm_1 = '\x94' + LC0(1) + LC1(volume) + LC2(frequency) \
+                 + LC2(duration)        
+
+        # assemble command and send to EV3
+        command = comm_0 + comm_1
+        self.brick.write(command)
+
+
     def disconnect(self):
 
         ''''
