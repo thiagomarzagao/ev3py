@@ -7,10 +7,12 @@ For now the module is still inchoate; it only covers some basic functions (motor
 
 No installation is necessary. Just download the two files (ev3py.py and dec_to_hex.py) and import the 'ev3' class from ev3py.
 
-Usage example (starts motors in ports A and D, with 20% capacity):
+Usage example (start motors in ports A and D, with 20% capacity):
 
     from ev3py import ev3
 
     mybrick = ev3()
     mybrick.connect('bt') # connect with EV3 via Bluetooth
     mybrick.motor_start(ports = 'ad', power = 20)
+
+Help is wanted! If you can help implement more EV3 commands that would be really good karma for you (think of the kids! no, really: think of the kids who may choose a career in STEM because you helped write a module that makes it easier for them to program LEGO Mindstorms).
