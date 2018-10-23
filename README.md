@@ -1,4 +1,5 @@
-###ev3py
+ev3py
+=====
 
 This Python module lets you interact with LEGO Mindstorms EV3 bricks using intuitive, easy-to-understand methods. It communicates with the EV3's native firmware, so there is no need to create a bootable SD card; just turn on the brick and start coding.
 
@@ -6,11 +7,11 @@ No installation is necessary. Just download the two files (ev3py.py and dec_to_h
 
 Usage example (start motors in ports A and D, with 20% capacity):
 
-from ev3py import ev3
+    from ev3py import ev3
 
-mybrick = ev3()
-mybrick.connect('bt') # connect with EV3 via Bluetooth
-mybrick.motor_start(ports = 'ad', power = 20)
+    mybrick = ev3()
+    mybrick.connect('bt') # connect with EV3 via Bluetooth
+    mybrick.motor_start(ports = 'ad', power = 20)
 
 For now the module is still inchoate; it only covers some basic functions (motor- and sensor-related functions) and it only works on Macs, and only via Bluetooth. The goal is to eventually cover all EV3 capability and make ev3py work with USB and WiFi and also with Linux and Windows.
 
